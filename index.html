@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe & Chill Radio</title>
+    <!-- Font Poppins untuk kesan membulat, modern, dan ceria -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --text-color: #ffffff;
+            --accent-color: #ff6b6b;
+            --accent-hover: #ff5252;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --border-radius-lg: 24px;
+            --border-radius-md: 16px;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            background: linear-gradient(135deg, #121212, #2a2a2a);
+            transition: background 2s ease-in-out; /* Transisi sangat halus */
+            overflow: hidden;
+        }
+
+        /* Container Glassmorphism yang terpusat untuk Music Player */
+        .container {
+            width: 100%;
+            max-width: 700px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-lg);
+            padding: 40px;
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            text-align: center;
+        }
+
+        /* Header UI */
+        .header h2 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 32px;
+            letter-spacing: 1px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            font-weight: 400;
+            opacity: 0.85;
+        }
+
+        /* YouTube Player Display Area */
+        #gradient-display {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: var(--border-radius-md);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--glass-border);
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        #youtube-player {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Tombol Kontrol Modern */
+        button.large {
+            padding: 14px 30px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50px; /* Bentuk pil agar terkesan dinamis */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button.large:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.6);
+        }
+
+        button.large:active {
+            transform: translateY(1px);
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 25px 15px; }
+            .header h2 { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h2>✨ Vibe & Chill Radio</h2>
+        </div>
+
+        <!-- YouTube Player -->
+        <div id="gradient-display">
+            <div id="youtube-player"></div>
+        </div>
+
+        <!-- Player Controls -->
+        <div>
+            <button class="button large" id="btn-action">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                Play / Skip Music
+            </button>
+        </div>
+    </div>
+
+    <!-- External Libraries (ntcv2 dihapus karena palette tidak lagi ditampilkan) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/swrdfgd/Random-Link/psudo.js"></script>
+    
+    <!-- YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script>
+        const musicList = [
+            'jfKfPfyJRdk', // Lofi Girl Radio
+            '4xDzrUhVKVA', // Lofi Chill
+            'lTRiuFIWV54', // Lofi 
+            '5qap5aO4i9A', // Lofi
+			'hwkq1qlVbqc',
+        ];
+
+        let player;
+        let isPlayerReady = false;
+
+        // Inisialisasi Player
+        function onYouTubeIframeAPIReady() {
+            let randomVideoId = musicList[Math.floor(Math.random() * musicList.length)];
+            
+            player = new YT.Player('youtube-player', {
+                height: '100%',
+                width: '100%',
+                videoId: randomVideoId,
+                playerVars: {
+                    'autoplay': 0, 
+                    'controls': 1,
+                    'rel': 0
+                },
+                events: {
+                    'onReady': function(event) {
+                        isPlayerReady = true;
+                    },
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerStateChange(event) {
+            // Ketika musik berakhir
+            if (event.data === YT.PlayerState.ENDED) {
+                let randomVideoId = musicList[Math.floor(Math.random() * musicList.length)];
+                player.loadVideoById(randomVideoId);
+                generateBackground();
+            }
+            // Memicu background ketika musik mulai dimainkan (jika pertama kali)
+            else if (event.data === YT.PlayerState.PLAYING) {
+                if(document.body.style.background === "") {
+                    generateBackground();
+                }
+            }
+        }
+
+        // Variabel untuk RNG Warna
+        var nolsampaief = '0123456789ABCDEF';
+        var simpenan = [Math.ceil(Math.random()*1000000000)];
+        var kunciapi = ['"da3d09f1-4168-4c4b-9bb7-07fc36cde692"','"10b51f99-394e-472a-88ed-7388d51deb36"','"b027deb6-a127-4313-9626-9497ad8e48b0"','"b70ccad6-a737-477e-9938-e56a8c8e9539"','"a3d088f5-1550-4ff4-a35a-5a45d37dbdca"'];
+
+        $(document).ready(function(){
+            // Fetch Seed dari Random.org
+            $.ajax({
+                url: "https://api.random.org/json-rpc/1/invoke",
+                type:"POST",
+                data: `{
+                    "jsonrpc": "2.0",
+                    "method": "generateIntegers",
+                    "params": {
+                        "apiKey": `+kunciapi[Math.floor(Math.random()*kunciapi.length)]+`,
+                        "n": 100,
+                        "min": 1,
+                        "max": 1000000000,
+                        "replacement": true,
+                        "base": 10
+                    },
+                    "id": 2601
+                }`,
+                contentType:"application/json; charset=utf-8",
+                dataType:"json",
+                success: function(result){
+                    if(result && result.result && result.result.random) {
+                        simpenan = simpenan.concat(result.result.random.data);
+                    }
+                }
+            }); 
+            
+            // Logika Tombol Action
+            $("#btn-action").click(function() {
+                generateBackground();
+
+                if(isPlayerReady) {
+                    if(player.getPlayerState() === YT.PlayerState.PLAYING) {
+                         // Skip ke musik berikutnya
+                         let randomVideoId = musicList[Math.floor(Math.random() * musicList.length)];
+                         player.loadVideoById(randomVideoId);
+                    } else {
+                         // Mainkan yang sekarang
+                         player.playVideo();
+                    }
+                }
+            });
+        });
+
+        // -------------------------------------------------------------
+        // Fungsi Generator Background (Sembunyi di Belakang Layar)
+        // -------------------------------------------------------------
+        
+        // Fungsi untuk mendapatkan sampel dari Distribusi Geometri
+        function getGeometricSample(p) {
+            let k = 1;
+            // X ~ Geo(p), P(X = k) = (1-p)^(k-1) * p
+            while (Math.random() > p && k < 7) { 
+                // k dibatasi maksimal 7 agar CSS gradient tidak bertumpuk hancur
+                k++;
+            }
+            return k;
+        }
+
+        function generateBackground() {
+            // Menggunakan peluang sukses (p) sebesar 0.45
+            let totalColors = getGeometricSample(0.45); 
+            let generatedColorsArray = [];
+
+            // Generate kode HEX sebanyak 'totalColors'
+            for (let urutanWarna = 1; urutanWarna <= totalColors; ++urutanWarna) {
+                let warnarandd = '#';
+                for (var i = 0; i < 6; ++i) {
+                    let pilihansimpenan = Math.floor(Math.random()*simpenan.length);
+                    warnarandd += nolsampaief.charAt(simpenan[pilihansimpenan]%16);
+                    
+                    if (typeof psudo === "function") {
+                        simpenan[pilihansimpenan] = psudo(simpenan, pilihansimpenan);
+                    } else {
+                        simpenan[pilihansimpenan] = Math.ceil(Math.random() * 1000000000); 
+                    }
+                }
+                generatedColorsArray.push(warnarandd);
+            }
+            
+            const gradientTypes = ['linear-gradient', 'radial-gradient', 'conic-gradient'];
+            const selectedGradientType = gradientTypes[Math.floor(Math.random() * gradientTypes.length)];
+            let finalBackground = '';
+
+            // Penyusunan String CSS Berdasarkan Tipe
+            if(generatedColorsArray.length === 1) {
+                finalBackground = generatedColorsArray[0]; 
+            } else {
+                let randX = Math.floor(Math.random() * 101);
+                let randY = Math.floor(Math.random() * 101);
+
+                if(selectedGradientType === 'linear-gradient') {
+                    let randomAngle = Math.floor(Math.random() * 360);
+                    finalBackground = `linear-gradient(${randomAngle}deg, ${generatedColorsArray.join(', ')})`;
+                } else if (selectedGradientType === 'radial-gradient') {
+                    finalBackground = `radial-gradient(circle at ${randX}% ${randY}%, ${generatedColorsArray.join(', ')})`;
+                } else if (selectedGradientType === 'conic-gradient') {
+                    let randomAngle = Math.floor(Math.random() * 360);
+                    let conicColors = [...generatedColorsArray];
+                    
+                    // Supaya gradien kerucut lebih halus ujungnya
+                    conicColors.push(conicColors[0]); 
+                    
+                    finalBackground = `conic-gradient(from ${randomAngle}deg at ${randX}% ${randY}%, ${conicColors.join(', ')})`;
+                }
+            }
+            
+            // Aplikasi Background ke Layar Belakang Secara Otomatis (UI Tersembunyi)
+            document.body.style.background = finalBackground;
+        }
+	
+	generateBackground();
+    </script>
+</body>
+</html>
